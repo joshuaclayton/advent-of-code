@@ -12,17 +12,13 @@ printSuccess :: [Int] -> IO ()
 printSuccess = print . process
 
 process :: [Int] -> Int
-process xs = go [] xs
+process xs = go 0 [] xs
   where
-    go result (a:b:rest) =
-        if a == b
-            then go (a : result) (b : rest)
-            else go result (b : rest)
-    go result [a] =
-        if a == last xs
-            then go (a : result) []
-            else sum result
-    go result [] = sum result
+    go pos result (a:rest) =
+        if a == cycle xs !! (pos + length xs `quot` 2)
+            then go (pos + 1) (a : result) rest
+            else go (pos + 1) result rest
+    go _ result [] = sum result
 
 parseInput :: Text -> Either String [Int]
 parseInput = parseOnly (inputParser <* eof)

@@ -6,10 +6,7 @@ import Text.Megaparsec
 import Text.Megaparsec.Text
 
 main :: IO ()
-main = runProgram printSuccess parseInput
-
-printSuccess :: [Int] -> IO ()
-printSuccess = print . process
+main = runProgram process inputParser
 
 process :: [Int] -> Int
 process xs = go 0 [] xs
@@ -19,9 +16,6 @@ process xs = go 0 [] xs
             then go (pos + 1) (a : result) rest
             else go (pos + 1) result rest
     go _ result [] = sum result
-
-parseInput :: Text -> Either String [Int]
-parseInput = parseOnly (inputParser <* eof)
 
 inputParser :: Parser [Int]
 inputParser = map digitToInt <$> many digitChar

@@ -11,12 +11,15 @@ import qualified Data.Text as T
 import Text.Megaparsec
 import Text.Megaparsec.Text
 
-runProgram :: Show b => (a -> IO ()) -> (Text -> Either b a) -> IO ()
-runProgram f parseInput =
-    either (printError . show) f . parseInput . T.strip . T.pack =<< getContents
+runProgram :: Show b => (a -> b) -> Parser a -> IO ()
+runProgram f p =
+    either (printError . show) (print . f) . parseInput p . T.strip . T.pack =<< getContents
 
 parseOnly :: Parser a -> Text -> Either String a
 parseOnly p = BF.first parseErrorPretty . runParser p ""
+
+parseInput :: Parser a -> Text -> Either String a
+parseInput p = parseOnly (p <* eof)
 
 printError :: String -> IO ()
 printError e = do

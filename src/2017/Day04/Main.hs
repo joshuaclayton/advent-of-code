@@ -12,7 +12,9 @@ process :: [[String]] -> Int
 process = length . filter validPassphrase
 
 validPassphrase :: [String] -> Bool
-validPassphrase xs = length xs == length (L.nub xs)
+validPassphrase xs = length sortedXs == length (L.nub sortedXs)
+  where
+    sortedXs = map L.sort xs
 
 inputParser :: Parser [[String]]
 inputParser = lineParser `sepBy` newline

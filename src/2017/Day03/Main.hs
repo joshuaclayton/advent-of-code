@@ -12,7 +12,7 @@ main :: IO ()
 main = runProgram process inputParser
 
 process :: Int -> Int
-process = manhattanDistance . traverseSpiral
+process = fst . traverseSpiral
 
 inputParser :: Parser Int
 inputParser = fromIntegral <$> L.decimal
@@ -26,24 +26,34 @@ data Direction
     | D
     | Origin
 
-traverseSpiral :: Int -> Point
-traverseSpiral endingItem = go 0 (0, 0) movementsWithDirections
+type ScoredPoint = (Int, Point)
+
+calculateScore :: Point -> [ScoredPoint] -> Int
+calculateScore (0, 0) = const 1
+calculateScore point = totalPoints . filter applicableScoredPoints
   where
-    go :: Int -> Point -> [(Int, Direction)] -> Point
-    go starting currentPosition ((0, currentDirection):remainingMovementsWithDirections) =
-        if starting == (endingItem - 1)
-            then currentPosition
-            else go starting currentPosition remainingMovementsWithDirections
-    go starting currentPosition ((x, currentDirection):remainingMovementsWithDirections) =
-        if starting == (endingItem - 1)
-            then currentPosition
+    applicableScoredPoints (_, point') = adjacentPoint point point'
+    totalPoints = sum . fmap fst
+
+adjacentPoint :: Point -> Point -> Bool
+adjacentPoint (x, y) (x', y') = abs (x - x') < 2 && abs (y - y') < 2
+
+traverseSpiral :: Int -> ScoredPoint
+traverseSpiral endingItem = go [] 0 (0, 0) movementsWithDirections
+  where
+    go :: [ScoredPoint] -> Int -> Point -> [(Int, Direction)] -> ScoredPoint
+    go scoredPoints starting currentPosition ((0, currentDirection):remainingMovementsWithDirections) =
+        if not (null scoredPoints) && endingItem < fst (head scoredPoints)
+            then head scoredPoints
+            else go scoredPoints starting currentPosition remainingMovementsWithDirections
+    go scoredPoints starting currentPosition ((x, currentDirection):remainingMovementsWithDirections) =
+        if not (null scoredPoints) && endingItem < fst (head scoredPoints)
+            then head scoredPoints
             else go
+                     ((calculateScore currentPosition scoredPoints, currentPosition) : scoredPoints)
                      (starting + 1)
                      (move currentDirection currentPosition)
                      ((x - 1, currentDirection) : remainingMovementsWithDirections)
-
-manhattanDistance :: Point -> Int
-manhattanDistance (x, y) = abs x + abs y
 
 move :: Direction -> Point -> Point
 move R (x, y) = (x + 1, y)

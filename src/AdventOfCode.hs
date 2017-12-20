@@ -1,15 +1,22 @@
 module AdventOfCode
     ( runProgram
     , parseOnly
+    , t
     , Text
     , T.unpack
+    , module X
     ) where
 
+import AdventOfCode.Parser as X
 import qualified Data.Bifunctor as BF
 import Data.Text (Text)
 import qualified Data.Text as T
+import Debug.Trace
 import Text.Megaparsec
 import Text.Megaparsec.Text
+
+t :: Show a => String -> a -> a
+t s x = traceShow (s ++ ": " ++ show x) x
 
 runProgram :: Show b => (a -> b) -> Parser a -> IO ()
 runProgram f p =

@@ -4,8 +4,8 @@ import AdventOfCode
 import Data.Char
 import Data.Maybe
 import Text.Megaparsec
-import Text.Megaparsec.Lexer as L
-import Text.Megaparsec.Text
+import Text.Megaparsec.Char
+import Text.Megaparsec.Char.Lexer as L
 
 main :: IO ()
 main = runProgram process inputParser
@@ -22,11 +22,11 @@ checksum xs = head $ Data.Maybe.catMaybes evenSplits
 
 evenSplit :: (Int, Int) -> Maybe Int
 evenSplit (a, b) =
-    if a == b
-        then Nothing
-        else case a `divMod` b of
-                 (res, 0) -> Just res
-                 _ -> Nothing
+  if a == b
+    then Nothing
+    else case a `divMod` b of
+           (res, 0) -> Just res
+           _ -> Nothing
 
 inputParser :: Parser [[Int]]
 inputParser = lineParser `sepBy` newline

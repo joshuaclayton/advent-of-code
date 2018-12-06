@@ -5,8 +5,8 @@ import Data.Char
 import Data.Maybe
 import Debug.Trace
 import Text.Megaparsec
-import Text.Megaparsec.Lexer as L
-import Text.Megaparsec.Text
+import Text.Megaparsec.Char
+import Text.Megaparsec.Char.Lexer as L
 
 main :: IO ()
 main = runProgram process inputParser
@@ -20,11 +20,11 @@ inputParser = fromIntegral <$> L.decimal
 type Point = (Int, Int)
 
 data Direction
-    = R
-    | U
-    | L
-    | D
-    | Origin
+  = R
+  | U
+  | L
+  | D
+  | Origin
 
 type ScoredPoint = (Int, Point)
 
@@ -43,17 +43,22 @@ traverseSpiral endingItem = go [] 0 (0, 0) movementsWithDirections
   where
     go :: [ScoredPoint] -> Int -> Point -> [(Int, Direction)] -> ScoredPoint
     go scoredPoints starting currentPosition ((0, currentDirection):remainingMovementsWithDirections) =
-        if not (null scoredPoints) && endingItem < fst (head scoredPoints)
-            then head scoredPoints
-            else go scoredPoints starting currentPosition remainingMovementsWithDirections
+      if not (null scoredPoints) && endingItem < fst (head scoredPoints)
+        then head scoredPoints
+        else go
+               scoredPoints
+               starting
+               currentPosition
+               remainingMovementsWithDirections
     go scoredPoints starting currentPosition ((x, currentDirection):remainingMovementsWithDirections) =
-        if not (null scoredPoints) && endingItem < fst (head scoredPoints)
-            then head scoredPoints
-            else go
-                     ((calculateScore currentPosition scoredPoints, currentPosition) : scoredPoints)
-                     (starting + 1)
-                     (move currentDirection currentPosition)
-                     ((x - 1, currentDirection) : remainingMovementsWithDirections)
+      if not (null scoredPoints) && endingItem < fst (head scoredPoints)
+        then head scoredPoints
+        else go
+               ((calculateScore currentPosition scoredPoints, currentPosition) :
+                scoredPoints)
+               (starting + 1)
+               (move currentDirection currentPosition)
+               ((x - 1, currentDirection) : remainingMovementsWithDirections)
 
 move :: Direction -> Point -> Point
 move R (x, y) = (x + 1, y)

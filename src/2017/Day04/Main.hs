@@ -3,7 +3,7 @@
 import AdventOfCode
 import qualified Data.List as L
 import Text.Megaparsec
-import Text.Megaparsec.Text
+import Text.Megaparsec.Char
 
 main :: IO ()
 main = runProgram process inputParser

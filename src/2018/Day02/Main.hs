@@ -7,31 +7,29 @@ import AdventOfCode
 import Control.Arrow ((&&&))
 import qualified Data.Bifunctor as BF
 import Data.Char
-import Data.Function (on)
-import qualified Data.List as L
 import qualified Data.Set as Set
 import Text.Megaparsec
 import Text.Megaparsec.Char
 
-type TextCount = [(Char, Int)]
-
 main :: IO ()
 main = runProgram process inputParser
 
-process :: [TextCount] -> Int
-process xs = occurrences 2 xs * occurrences 3 xs
+process :: [String] -> [(String, String, Bool)]
+process xs =
+  filter (\(_, _, v) -> v == True) $
+  map (\(p1, p2) -> (p1, p2, singleCharacterDifference p1 p2)) $ pairs xs
+
+pairs :: [a] -> [(a, a)]
+pairs xs = foldl (\acc i -> (map (\v -> (i, v)) xs) ++ acc) [] xs
+
+singleCharacterDifference :: String -> String -> Bool
+singleCharacterDifference s1 s2 = onlyOneMatch $ matches <$> pairs
   where
-    occurrences i = length . filter (hasNOccurrences i)
+    pairs = zip s1 s2
+    matches = uncurry (==)
+    onlyOneMatch xs = (length $ filter (== False) xs) == 1
 
-hasNOccurrences :: Int -> TextCount -> Bool
-hasNOccurrences i = any ((== i) . snd)
-
-inputParser :: Parser [TextCount]
+inputParser :: Parser [String]
 inputParser = lineValue `sepBy` newline
   where
-    lineValue = groupCharacterAndOccurrenceCount <$> some alphaNumChar
-    groupCharacterAndOccurrenceCount = fmap (BF.second length) . groupBy id
-
-groupBy :: Ord b => (a -> b) -> [a] -> [(b, [a])]
-groupBy f =
-  map (f . head &&& id) . L.groupBy ((==) `on` f) . L.sortBy (compare `on` f)
+    lineValue = some alphaNumChar

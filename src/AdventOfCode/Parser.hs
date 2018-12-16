@@ -2,6 +2,7 @@ module AdventOfCode.Parser
   ( Parser
   , signedIntegerParser
   , integerParser
+  , intParser
   ) where
 
 import Control.Monad (void)
@@ -15,6 +16,9 @@ type Parser = Text.Megaparsec.Parsec Void Text
 
 integerParser :: Parser Integer
 integerParser = lexeme L.decimal
+
+intParser :: Parser Int
+intParser = fromInteger <$> lexeme L.decimal
 
 signedIntegerParser :: Parser Integer
 signedIntegerParser = L.signed spaceConsumer integerParser

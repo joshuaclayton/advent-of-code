@@ -14,7 +14,7 @@ import Text.Megaparsec.Char
 
 newtype Id =
   Id Int
-  deriving (Show)
+  deriving (Eq, Show)
 
 data Dimensions = Dimensions
   { width :: Int
@@ -32,15 +32,18 @@ data Claim =
 main :: IO ()
 main = runProgram process inputParser
 
-process :: [Claim] -> Int
-process xs =
-  length $
-  filter (\(_, i) -> i > 1) $
-  map (BF.second length) $ groupBy id $ concatMap claimToCoordinates xs
+process :: [Claim] -> [Id]
+process xs = (L.\\) claimIds claimIdsWithOverlap
+  where
+    claimIds = map (\(Claim id' _ _) -> id') xs
+    claimIdsWithOverlap =
+      concatMap (\(c, results) -> map fst results) $
+      filter (\(c, results) -> length results > 1) $
+      groupBy snd $ concatMap claimToCoordinates xs
 
-claimToCoordinates :: Claim -> [Coordinate]
-claimToCoordinates (Claim _ (x, y) dimensions) =
-  concatMap (\x -> map (x, ) ys) xs
+claimToCoordinates :: Claim -> [(Id, Coordinate)]
+claimToCoordinates (Claim id' (x, y) dimensions) =
+  map ((id', )) $ concatMap (\x -> map (x, ) ys) xs
   where
     xs = [x .. (x + width dimensions - 1)]
     ys = [y .. (y + height dimensions - 1)]

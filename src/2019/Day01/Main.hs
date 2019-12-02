@@ -13,7 +13,15 @@ main :: IO ()
 main = runProgram process inputParser
 
 process :: [Integer] -> Integer
-process = sum . map fuelRequired
+process = sum . map recurseFuelRequired
+
+recurseFuelRequired :: Integer -> Integer
+recurseFuelRequired = sum . go []
+  where
+    go acc n =
+        if fuelRequired n < 1
+            then acc
+            else go (fuelRequired n : acc) (fuelRequired n)
 
 fuelRequired :: Integer -> Integer
 fuelRequired i = floor (fromIntegral i / 3) - 2

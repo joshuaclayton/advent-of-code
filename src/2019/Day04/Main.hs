@@ -46,11 +46,11 @@ data Password =
 
 containsAdjacent :: Password -> Bool
 containsAdjacent (Password a b c d e f)
-    | a == b = True
-    | b == c = True
-    | c == d = True
-    | d == e = True
-    | e == f = True
+    | a == b && notElem a [c, d, e, f] = True
+    | b == c && notElem b [a, d, e, f] = True
+    | c == d && notElem c [a, b, e, f] = True
+    | d == e && notElem d [a, b, c, f] = True
+    | e == f && notElem e [a, b, c, d] = True
     | otherwise = False
 
 sameOrAscends :: Password -> Bool

@@ -7,6 +7,7 @@ import AdventOfCode
 import qualified Data.Bifunctor as BF
 import Data.Char
 import Data.Functor (($>))
+import qualified Data.List as L
 import qualified Data.Maybe as M
 import qualified Data.Set as Set
 import Text.Megaparsec
@@ -33,12 +34,24 @@ tupleToList :: (a, a) -> [a]
 tupleToList (x, y) = x : [y]
 
 process :: ([Instruction], [Instruction]) -> Int
-process =
-    minimum .
-    filter (/= 0) .
-    map coordinateToDistance .
-    coordinateOverlaps .
-    tupleToList . BF.bimap instructionsToCoordinates instructionsToCoordinates
+process values =
+    minimum $
+    filter (/= 0) $
+    map (\p ->
+             sum $
+             tupleToList $
+             BF.bimap
+                 (distanceToOverlap p)
+                 (distanceToOverlap p)
+                 bothCoordinates)
+        overlapPoints
+  where
+    bothCoordinates =
+        BF.bimap instructionsToCoordinates instructionsToCoordinates values
+    overlapPoints = coordinateOverlaps $ tupleToList bothCoordinates
+
+distanceToOverlap :: Coordinate -> [Coordinate] -> Int
+distanceToOverlap x = M.fromJust . L.elemIndex x
 
 coordinateToDistance :: Coordinate -> Int
 coordinateToDistance (x, y) = abs x + abs y

@@ -28,12 +28,21 @@ main :: IO ()
 main = runProgram process inputParser
 
 process :: [Integer] -> Integer
-process =
+process inputs =
+    head
+        [ 100 * n + v
+        | n <- [0 .. 99]
+        , v <- [0 .. 99]
+        , process' n v inputs == 19690720
+        ]
+
+process' :: Integer -> Integer -> [Integer] -> Integer
+process' noun verb =
     valueAt 0 .
     handleInstructions .
     buildInstructionHandler .
-    setValueAt 2 2 .
-    setValueAt 1 12 . Program . M.mapMaybe buildIntcode . inGroupsOf 4
+    setValueAt 2 verb .
+    setValueAt 1 noun . Program . M.mapMaybe buildIntcode . inGroupsOf 4
 
 buildIntcode :: [Integer] -> Maybe Intcode
 buildIntcode [a, b, c, d] = Just $ Intcode a b c d
